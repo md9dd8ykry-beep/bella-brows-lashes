@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Bella Brows & Lashes — Sobrancelhas e cílios (demonstração)</title>
+  <meta name="description" content="Site demonstrativo de estúdio de sobrancelhas e extensão de cílios, com agenda inteligente interativa.">
+  <meta name="theme-color" content="#f4ebe4">
+  <link rel="icon" href="assets/img/logo-marca.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Ícones (SVG sprite) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8.5" cy="14" r="1" fill="currentColor"/><circle cx="12" cy="14" r="1" fill="currentColor"/><circle cx="15.5" cy="14" r="1" fill="currentColor"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M14 3v5h5M8.5 12.5h7M8.5 16h7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-gallery" viewBox="0 0 24 24"><rect x="7" y="3.5" width="13.5" height="13.5" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 7v11.5a2 2 0 0 0 2 2H17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M10 14l2.6-3 2 2 1.4-1.6 2.5 2.6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="16.5" cy="7.5" r="1.3" fill="currentColor"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="10" r="2.4" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+    <symbol id="i-wa" viewBox="0 0 24 24"><path d="M12 3.2a8.8 8.8 0 0 0-7.6 13.2L3.2 20.8l4.5-1.2A8.8 8.8 0 1 0 12 3.2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 8.2c.3-.6.6-.6.9-.6h.6c.2 0 .4.1.5.4l.8 1.8c.1.2 0 .5-.1.6l-.6.7c-.1.1-.2.3 0 .5.7 1.2 1.6 2 2.8 2.6.2.1.4.1.5-.1l.7-.8c.2-.2.4-.2.6-.1l1.7.8c.2.1.4.3.3.5 0 .9-.6 1.8-1.6 2-.8.2-1.9.1-3.6-.8-2-1.1-3.4-2.9-3.9-4.2-.4-1.1-.2-2.2.4-3.3z" fill="currentColor"/></symbol>
+    <symbol id="i-ig" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M14.5 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.6 5.4L19 10l-5.4 1.6L12 17l-1.6-5.4L5 10l5.4-1.6z" fill="currentColor"/></symbol>
+  </svg>
+
+  <div class="demo-strip" role="note">
+    Site demonstrativo · nenhuma reserva ou pagamento é real
+  </div>
+
+  <!-- ============================== 1. LOGO E APRESENTAÇÃO ============================== -->
+  <header class="hero" id="inicio">
+    <div class="hero-photo">
+      <img data-bind-src="brand.heroImage" src="assets/img/hero.svg" alt="Ilustração de olho com sobrancelha desenhada e cílios alongados" width="440" height="860" fetchpriority="high">
+    </div>
+    <div class="hero-brand">
+      <img class="hero-mark" src="assets/img/logo-marca.svg" alt="" width="104" height="108">
+      <h1 class="wordmark">
+        <span class="wm-name">Bella</span>
+        <span class="wm-sub">Brows &amp; Lashes</span>
+      </h1>
+      <div class="divider" aria-hidden="true"><svg><use href="#i-spark"/></svg></div>
+      <p class="tagline" data-bind="brand.tagline"></p>
+      <div class="hero-social">
+        <a class="icon-btn" data-link="instagram" href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram"><svg><use href="#i-ig"/></svg></a>
+        <a class="icon-btn" data-link="whatsapp" href="https://wa.me/" target="_blank" rel="noopener" aria-label="WhatsApp"><svg><use href="#i-wa"/></svg></a>
+        <a class="icon-btn" href="#localizacao" aria-label="Localização"><svg><use href="#i-pin"/></svg></a>
+      </div>
+    </div>
+    <div class="hero-cta">
+      <button class="btn-primary btn-agenda" type="button" data-open-agenda>
+        <svg aria-hidden="true"><use href="#i-cal"/></svg>
+        Agenda inteligente
+      </button>
+      <p class="hero-hint">Escolha os procedimentos e veja só os horários que cabem para você.</p>
+    </div>
+  </header>
+
+  <!-- Menu em cartões (mesma lógica de navegação da referência) -->
+  <nav class="menu" aria-label="Seções do site">
+    <button class="menu-card" type="button" data-open-agenda>
+      <span class="menu-ico"><svg><use href="#i-cal"/></svg></span>
+      <span class="menu-txt"><strong>Agenda inteligente</strong><small>Reserve em poucos toques, com horários calculados para os seus procedimentos.</small></span>
+      <span class="menu-go"><svg><use href="#i-chev"/></svg></span>
+    </button>
+    <a class="menu-card" href="#procedimentos">
+      <span class="menu-ico"><svg><use href="#i-list"/></svg></span>
+      <span class="menu-txt"><strong>Procedimentos</strong><small>Sobrancelhas e cílios, com duração e valores.</small></span>
+      <span class="menu-go"><svg><use href="#i-chev"/></svg></span>
+    </a>
+    <a class="menu-card" href="#resultados">
+      <span class="menu-ico"><svg><use href="#i-gallery"/></svg></span>
+      <span class="menu-txt"><strong>Resultados</strong><small>Compare o antes e o depois de cada técnica.</small></span>
+      <span class="menu-go"><svg><use href="#i-chev"/></svg></span>
+    </a>
+    <a class="menu-card" href="#localizacao">
+      <span class="menu-ico"><svg><use href="#i-pin"/></svg></span>
+      <span class="menu-txt"><strong>Localização</strong><small>Um espaço acolhedor, pensado para você.</small></span>
+      <span class="menu-go"><svg><use href="#i-chev"/></svg></span>
+    </a>
+    <a class="menu-card" href="#contato">
+      <span class="menu-ico"><svg><use href="#i-wa"/></svg></span>
+      <span class="menu-txt"><strong>Fale conosco</strong><small>Tire suas dúvidas pelo WhatsApp.</small></span>
+      <span class="menu-go"><svg><use href="#i-chev"/></svg></span>
+    </a>
+  </nav>
+
+  <main>
+    <!-- ============================== 2. PROCEDIMENTOS ============================== -->
+    <section class="section" id="procedimentos" aria-labelledby="t-proc">
+      <div class="section-head">
+        <h2 id="t-proc">Procedimentos</h2>
+        <p>Selecione um procedimento para abrir a agenda já com ele escolhido. Você pode somar outros na sequência.</p>
+      </div>
+      <div class="services" id="services-list"></div>
+      <p class="fine">Valores e durações demonstrativos.</p>
+    </section>
+
+    <!-- ============================== 3. RESULTADOS ============================== -->
+    <section class="section section-tint" id="resultados" aria-labelledby="t-res">
+      <div class="section-head">
+        <h2 id="t-res">Nossos Resultados</h2>
+        <p>Arraste a linha central para comparar o antes e o depois.</p>
+      </div>
+      <div class="results-wrap">
+        <div class="results" id="results-list" tabindex="0" aria-label="Galeria de antes e depois"></div>
+        <div class="results-nav">
+          <button class="round-btn" type="button" data-results="prev" aria-label="Resultado anterior"><svg><use href="#i-back"/></svg></button>
+          <span class="results-count" id="results-count" aria-live="polite">1 / 4</span>
+          <button class="round-btn" type="button" data-results="next" aria-label="Próximo resultado"><svg><use href="#i-chev"/></svg></button>
+        </div>
+      </div>
+      <p class="fine notice">Imagens ilustrativas criadas para esta demonstração — não são resultados reais de clientes. Substitua pelas fotos dos seus próprios trabalhos (veja o README).</p>
+    </section>
+
+    <!-- ============================== 4. LOCALIZAÇÃO ============================== -->
+    <section class="section" id="localizacao" aria-labelledby="t-loc">
+      <div class="section-head">
+        <h2 id="t-loc">Onde estamos</h2>
+      </div>
+      <div class="location">
+        <div class="map" id="map-box">
+          <img src="assets/img/mapa-demo.svg" alt="Mapa ilustrativo, sem endereço real" width="800" height="480" loading="lazy">
+          <span class="map-tag">Mapa ilustrativo</span>
+        </div>
+        <div class="address-card">
+          <span class="badge">Endereço fictício de demonstração</span>
+          <p class="addr"><strong data-bind="location.line1"></strong><br><span data-bind="location.line2"></span></p>
+          <p class="hours"><svg aria-hidden="true"><use href="#i-clock"/></svg><span data-bind="location.hours"></span></p>
+          <a class="btn-outline" data-link="maps" href="https://www.google.com/maps" target="_blank" rel="noopener">
+            <svg aria-hidden="true"><use href="#i-pin"/></svg> Abrir no Google Maps
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== 5. FALE CONOSCO ============================== -->
+    <section class="section contact" id="contato" aria-labelledby="t-con">
+      <h2 id="t-con">Ficou com alguma dúvida?</h2>
+      <p>Fale direto com a gente pelo WhatsApp. Respondemos no horário de atendimento.</p>
+      <a class="btn-primary btn-wa" data-link="whatsapp" href="https://wa.me/" target="_blank" rel="noopener">
+        <svg aria-hidden="true"><use href="#i-wa"/></svg> Fale conosco
+      </a>
+      <p class="fine">Número demonstrativo: <span data-bind="contact.whatsappDisplay"></span></p>
+    </section>
+  </main>
+
+  <!-- ============================== RODAPÉ ============================== -->
+  <footer class="footer">
+    <p class="footer-title">Conecte-se</p>
+    <div class="divider" aria-hidden="true"><svg><use href="#i-spark"/></svg></div>
+    <div class="footer-social">
+      <a data-link="instagram" href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram"><svg><use href="#i-ig"/></svg></a>
+      <a data-link="whatsapp" href="https://wa.me/" target="_blank" rel="noopener" aria-label="WhatsApp"><svg><use href="#i-wa"/></svg></a>
+    </div>
+    <p class="footer-name">Bella Brows &amp; Lashes</p>
+    <p class="footer-copy">© <span data-bind="brand.year"></span> Bella Brows &amp; Lashes. Todos os direitos reservados.</p>
+    <button class="link-btn" type="button" id="open-panel">Ver agenda da profissional (demonstração)</button>
+  </footer>
+
+  <!-- ============================== AGENDA INTELIGENTE ============================== -->
+  <dialog class="sheet" id="agenda" aria-labelledby="ag-title">
+    <div class="sheet-inner">
+      <header class="sheet-head">
+        <div>
+          <p class="sheet-kicker">Demonstração interativa</p>
+          <h2 id="ag-title">Agenda inteligente</h2>
+        </div>
+        <button class="round-btn" type="button" data-close aria-label="Fechar agenda"><svg><use href="#i-x"/></svg></button>
+      </header>
+      <ol class="stepper" id="stepper" aria-label="Etapas do agendamento">
+        <li data-step="1"><span>1</span><em>Procedimentos</em></li>
+        <li data-step="2"><span>2</span><em>Data</em></li>
+        <li data-step="3"><span>3</span><em>Horário</em></li>
+        <li data-step="4"><span>4</span><em>Seus dados</em></li>
+        <li data-step="5"><span>5</span><em>Confirmação</em></li>
+      </ol>
+
+      <div class="sheet-body" id="sheet-body">
+        <!-- Passo 1 -->
+        <section class="step" data-panel="1" aria-labelledby="s1">
+          <h3 id="s1">Quais procedimentos você deseja?</h3>
+          <p class="step-help">Pode escolher mais de um. O tempo e o valor são somados automaticamente.</p>
+          <div class="pick-list" id="pick-list" role="group" aria-label="Procedimentos"></div>
+        </section>
+
+        <!-- Passo 2 -->
+        <section class="step" data-panel="2" aria-labelledby="s2" hidden>
+          <h3 id="s2">Escolha a data</h3>
+          <p class="step-help">Só aparecem liberadas as datas com horário livre para <strong id="dur-label">—</strong> de atendimento.</p>
+          <div class="calendar">
+            <div class="cal-head">
+              <button class="round-btn" type="button" id="cal-prev" aria-label="Mês anterior"><svg><use href="#i-back"/></svg></button>
+              <strong id="cal-title" aria-live="polite"></strong>
+              <button class="round-btn" type="button" id="cal-next" aria-label="Próximo mês"><svg><use href="#i-chev"/></svg></button>
+            </div>
+            <div class="cal-week" aria-hidden="true"><span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span></div>
+            <div class="cal-grid" id="cal-grid" role="grid"></div>
+            <ul class="cal-legend">
+              <li><i class="lg-av"></i>Disponível</li>
+              <li><i class="lg-full"></i>Lotado</li>
+              <li><i class="lg-off"></i>Fechado / bloqueado</li>
+            </ul>
+          </div>
+          <p class="day-note" id="day-note" aria-live="polite"></p>
+        </section>
+
+        <!-- Passo 3 -->
+        <section class="step" data-panel="3" aria-labelledby="s3" hidden>
+          <h3 id="s3">Escolha o horário</h3>
+          <p class="step-help" id="slot-help"></p>
+          <div id="slot-groups"></div>
+        </section>
+
+        <!-- Passo 4 -->
+        <section class="step" data-panel="4" aria-labelledby="s4" hidden>
+          <h3 id="s4">Seus dados</h3>
+          <p class="step-help">Use dados fictícios: esta é uma demonstração e nada é enviado.</p>
+          <form id="client-form" novalidate>
+            <label class="field">
+              <span>Nome completo</span>
+              <input id="f-name" name="name" type="text" autocomplete="name" required minlength="5" placeholder="Ex.: Maria da Silva">
+              <small class="err" id="e-name"></small>
+            </label>
+            <label class="field">
+              <span>WhatsApp</span>
+              <input id="f-phone" name="phone" type="tel" inputmode="numeric" autocomplete="tel-national" required placeholder="(00) 00000-0000">
+              <small class="err" id="e-phone"></small>
+            </label>
+          </form>
+          <div class="mini-summary" id="mini-summary"></div>
+        </section>
+
+        <!-- Passo 5 -->
+        <section class="step" data-panel="5" aria-labelledby="s5" hidden>
+          <h3 id="s5">Confira e confirme</h3>
+          <dl class="summary" id="summary"></dl>
+          <div class="deposit">
+            <div class="deposit-head">
+              <strong>Sinal para garantir o horário</strong>
+              <span class="badge">Simulação</span>
+            </div>
+            <p class="deposit-value" id="deposit-value"></p>
+            <div class="pix-box" id="pix-box" hidden>
+              <p>Pix copia e cola <em>(texto ilustrativo, não é um código válido)</em></p>
+              <code id="pix-code"></code>
+              <button class="btn-ghost" type="button" id="copy-pix">Copiar</button>
+            </div>
+            <button class="btn-outline wide" type="button" id="pay-btn">Simular pagamento do sinal</button>
+            <p class="pay-status" id="pay-status" aria-live="polite"></p>
+          </div>
+          <p class="form-error" id="confirm-error" role="alert" hidden></p>
+        </section>
+
+        <!-- Final -->
+        <section class="step done" data-panel="6" aria-labelledby="s6" hidden>
+          <div class="done-icon"><svg><use href="#i-check"/></svg></div>
+          <h3 id="s6">Agendamento confirmado!</h3>
+          <p class="step-help">Protocolo <strong id="done-code"></strong> · reserva de demonstração</p>
+          <dl class="summary" id="done-summary"></dl>
+          <p class="fine">O horário já aparece como ocupado na agenda desta demonstração (neste navegador).</p>
+          <div class="done-actions">
+            <a class="btn-primary btn-wa" id="done-wa" href="https://wa.me/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-wa"/></svg> Enviar resumo no WhatsApp</a>
+            <button class="btn-outline" type="button" id="new-booking">Fazer outro agendamento</button>
+            <button class="link-btn" type="button" data-close>Voltar ao site</button>
+          </div>
+        </section>
+      </div>
+
+      <footer class="sheet-foot" id="sheet-foot">
+        <div class="totals" id="totals" aria-live="polite"></div>
+        <div class="foot-actions">
+          <button class="round-btn" type="button" id="btn-back" aria-label="Voltar"><svg><use href="#i-back"/></svg></button>
+          <button class="btn-primary" type="button" id="btn-next">Continuar</button>
+        </div>
+      </footer>
+    </div>
+  </dialog>
+
+  <!-- ============================== PRÉVIA DO PAINEL (DEMO) ============================== -->
+  <dialog class="sheet" id="panel" aria-labelledby="pn-title">
+    <div class="sheet-inner">
+      <header class="sheet-head">
+        <div>
+          <p class="sheet-kicker">Prévia do futuro painel</p>
+          <h2 id="pn-title">Agenda da profissional</h2>
+        </div>
+        <button class="round-btn" type="button" data-close aria-label="Fechar"><svg><use href="#i-x"/></svg></button>
+      </header>
+      <div class="sheet-body">
+        <p class="step-help">Todos os agendamentos desta demonstração, inclusive os que você fizer. Os dados ficam só neste navegador.</p>
+        <div id="panel-list"></div>
+        <button class="btn-outline wide" type="button" id="reset-demo">Restaurar demonstração</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <noscript><p class="noscript">Ative o JavaScript para usar a agenda inteligente.</p></noscript>
+
+  <script src="js/config.js"></script>
+  <script src="js/scheduler.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/payment.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/site.js"></script>
+  <script src="js/booking.js"></script>
+</body>
+</html>

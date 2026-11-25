@@ -1,0 +1,93 @@
+# Teste ponta a ponta (celular 390x844 + desktop). Requer: pip install playwright && playwright install chromium
+# Rode um servidor na pasta do projeto (python3 -m http.server 8000) e depois: python3 tests/e2e_playwright.py
+import asyncio, json, sys
+from playwright.async_api import async_playwright
+URL = "http://localhost:8000/"
+S = "tests/screenshots/"
+async def main():
+    import os; os.makedirs(S, exist_ok=True)
+    async with async_playwright() as p:
+        b = await p.chromium.launch()
+        ctx = await b.new_context(viewport={"width": 390, "height": 844}, device_scale_factor=2, is_mobile=True, has_touch=True, locale="pt-BR")
+        pg = await ctx.new_page()
+        errs = []
+        pg.on("console", lambda m: errs.append(m.text) if m.type == "error" else None)
+        pg.on("pageerror", lambda e: errs.append(str(e)))
+        await pg.goto(URL); await pg.wait_for_timeout(600)
+        await pg.screenshot(path=S+"01-hero.png")
+        await pg.screenshot(path=S+"02-full.png", full_page=True)
+        broken = await pg.evaluate("[...document.images].filter(i=>i.loading!=='lazy'||i.complete).filter(i=>i.complete&&i.naturalWidth===0).map(i=>i.src)")
+        links = await pg.evaluate("[...document.querySelectorAll('a')].map(a=>a.getAttribute('href'))")
+        print("broken imgs:", broken); print("links:", sorted(set(links)))
+        overflow = await pg.evaluate("document.documentElement.scrollWidth > innerWidth")
+        print("horizontal overflow:", overflow)
+        # abre pelo cartão de serviço (Brow Lamination)
+        await pg.click("[data-book='brow-lamination']"); await pg.wait_for_timeout(500)
+        await pg.click("label.pick:has(input[value='design-simples'])")
+        print("totals:", await pg.inner_text("#totals"))
+        await pg.screenshot(path=S+"03-step1.png")
+        await pg.click("#btn-next"); await pg.wait_for_timeout(300)
+        await pg.screenshot(path=S+"04-step2.png")
+        stats = await pg.evaluate("[...document.querySelectorAll('.day')].map(d=>d.dataset.date+':'+d.className.match(/st-(\\w+)/)[1])")
+        print("calendar:", stats[:40])
+        day = await pg.get_attribute(".day.st-available", "data-date")
+        await pg.click(".day.st-available"); await pg.wait_for_timeout(600)
+        print("step after date:", await pg.evaluate("document.querySelector('.step:not([hidden])').dataset.panel"))
+        await pg.screenshot(path=S+"05-step3.png")
+        slots = await pg.evaluate("[...document.querySelectorAll('.slot')].map(s=>s.dataset.time)")
+        print("date", day, "slots:", slots)
+        chosen = slots[0]
+        await pg.click(f".slot[data-time='{chosen}']"); await pg.wait_for_timeout(600)
+        # validação
+        await pg.fill("#f-name", "Ana"); await pg.type("#f-phone", "6599"); await pg.click("#btn-next")
+        print("errors:", await pg.inner_text("#e-name"), "|", await pg.inner_text("#e-phone"), "| next disabled:", await pg.is_disabled("#btn-next"))
+        await pg.fill("#f-name", "Ana Teste Demonstração"); await pg.fill("#f-phone", ""); await pg.type("#f-phone", "65999998888")
+        print("phone masked:", await pg.input_value("#f-phone"))
+        await pg.screenshot(path=S+"06-step4.png")
+        await pg.click("#btn-next"); await pg.wait_for_timeout(300)
+        print("confirm disabled before pay:", await pg.is_disabled("#btn-next"))
+        await pg.screenshot(path=S+"07-step5.png", full_page=False)
+        await pg.click("#pay-btn"); await pg.wait_for_timeout(1500)
+        print("pay status:", await pg.inner_text("#pay-status"))
+        await pg.screenshot(path=S+"08-step5-paid.png")
+        # segunda aba escolhe o mesmo horário antes da confirmação
+        pg2 = await ctx.new_page(); await pg2.goto(URL); await pg2.wait_for_timeout(400)
+        await pg2.click("[data-book='brow-lamination']"); await pg2.wait_for_timeout(300)
+        await pg2.click("label.pick:has(input[value='design-simples'])"); await pg2.click("#btn-next"); await pg2.wait_for_timeout(200)
+        await pg2.click(f".day[data-date='{day}']"); await pg2.wait_for_timeout(600)
+        await pg2.click(f".slot[data-time='{chosen}']"); await pg2.wait_for_timeout(600)
+        await pg2.fill("#f-name", "Bia Outra Cliente"); await pg2.type("#f-phone", "65988887777"); await pg2.click("#btn-next"); await pg2.wait_for_timeout(200)
+        await pg2.click("#pay-btn"); await pg2.wait_for_timeout(1500)
+        # aba 1 confirma
+        await pg.click("#btn-next"); await pg.wait_for_timeout(600)
+        print("done code:", await pg.inner_text("#done-code"))
+        await pg.screenshot(path=S+"09-done.png")
+        # aba 2 tenta confirmar o mesmo horário
+        await pg2.click("#btn-next"); await pg2.wait_for_timeout(500)
+        print("tab2 step:", await pg2.evaluate("document.querySelector('.step:not([hidden])').dataset.panel"), "toast:", await pg2.inner_text("#toast"))
+        slots2 = await pg2.evaluate("[...document.querySelectorAll('.slot')].map(s=>s.dataset.time)")
+        print("tab2 still offers chosen?", chosen in slots2)
+        await pg2.screenshot(path=S+"10-conflict.png")
+        # aba 1: novo agendamento, mesmo dia, horário sumiu
+        await pg.click("#new-booking"); await pg.wait_for_timeout(300)
+        await pg.click("label.pick:has(input[value='design-simples'])"); await pg.click("#btn-next"); await pg.wait_for_timeout(200)
+        await pg.click(f".day[data-date='{day}']"); await pg.wait_for_timeout(600)
+        s3 = await pg.evaluate("[...document.querySelectorAll('.slot')].map(s=>s.dataset.time)")
+        print("after booking (40min) slots:", s3)
+        await pg.click("#agenda [data-close]"); await pg.wait_for_timeout(300)
+        await pg.click("#open-panel"); await pg.wait_for_timeout(300)
+        await pg.screenshot(path=S+"11-panel.png")
+        print("panel mine:", await pg.evaluate("document.querySelectorAll('.pn-item.is-mine').length"))
+        # resultados slider
+        await pg.click("#panel [data-close]"); await pg.wait_for_timeout(200)
+        await pg.evaluate("document.getElementById('resultados').scrollIntoView()"); await pg.wait_for_timeout(400)
+        await pg.screenshot(path=S+"12-results.png")
+        print("console errors:", errs)
+        # desktop
+        d = await b.new_page(viewport={"width": 1366, "height": 860})
+        await d.goto(URL); await d.wait_for_timeout(500)
+        await d.screenshot(path=S+"13-desktop.png")
+        await d.screenshot(path=S+"14-desktop-full.png", full_page=True)
+        await d.click(".btn-agenda"); await d.wait_for_timeout(400); await d.screenshot(path=S+"15-desktop-agenda.png")
+        await b.close()
+asyncio.run(main())
