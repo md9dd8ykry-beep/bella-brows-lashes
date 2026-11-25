@@ -368,4 +368,7 @@
 
   // Atalho: site.html#agenda abre a agenda direto
   if (location.hash === "#agenda") B.booking.open([]);
+  root.addEventListener("hashchange", function () {
+    if (location.hash === "#agenda" && !dlg.open) B.booking.open([]);
+  });
 })(window);
