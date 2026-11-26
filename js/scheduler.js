@@ -67,6 +67,30 @@
   }
 
   /**
+   * Períodos de atendimento de uma data. Aceita três formatos de regra:
+   *  - agenda.specialDays[data] = [{start,end}]  → horário especial (vazio = fechado)
+   *  - agenda.weekly = [{weekday,start,end}]      → horários por dia da semana (plataforma)
+   *  - agenda.workDays + agenda.periods           → formato simples (demonstração local)
+   */
+  function periodsFor(key, agenda) {
+    if (agenda.specialDays && Object.prototype.hasOwnProperty.call(agenda.specialDays, key)) {
+      return agenda.specialDays[key].map(function (p) { return { label: periodLabel(p.start), start: p.start, end: p.end }; });
+    }
+    var wd = parseKey(key).getDay();
+    if (agenda.weekly) {
+      return agenda.weekly.filter(function (w) { return Number(w.weekday) === wd; })
+        .sort(function (a, b) { return toMin(a.start) - toMin(b.start); })
+        .map(function (w) { return { label: periodLabel(w.start), start: w.start, end: w.end }; });
+    }
+    return agenda.workDays.indexOf(wd) === -1 ? [] : agenda.periods;
+  }
+
+  function periodLabel(start) {
+    var m = toMin(start);
+    return m < 12 * 60 ? "Manhã" : m < 18 * 60 ? "Tarde" : "Noite";
+  }
+
+  /**
    * Situação básica de um dia, independente da duração.
    * @returns {"past"|"beyond"|"closed"|"blocked"|"open"}
    */
@@ -75,8 +99,8 @@
     if (key < today) return "past";
     var last = dateKey(addDays(now, agenda.bookingWindowDays || 60));
     if (key > last) return "beyond";
-    if (agenda.workDays.indexOf(parseKey(key).getDay()) === -1) return "closed";
     if (blockedDateInfo(key, agenda)) return "blocked";
+    if (!periodsFor(key, agenda).length) return "closed";
     return "open";
   }
 
@@ -113,7 +137,7 @@
     });
 
     var slots = [];
-    agenda.periods.forEach(function (p) {
+    periodsFor(key, agenda).forEach(function (p) {
       var pStart = toMin(p.start), pEnd = toMin(p.end);
       for (var t = pStart; t + duration <= pEnd; t += step) {
         if (t < earliest) continue;
@@ -142,7 +166,7 @@
 
   var api = {
     pad: pad, toMin: toMin, fromMin: fromMin, dateKey: dateKey, parseKey: parseKey, addDays: addDays,
-    overlaps: overlaps, summarize: summarize, dayRule: dayRule, blockedDateInfo: blockedDateInfo,
+    overlaps: overlaps, summarize: summarize, dayRule: dayRule, periodsFor: periodsFor, blockedDateInfo: blockedDateInfo,
     getAvailableSlots: getAvailableSlots, dayStatus: dayStatus, isSlotStillFree: isSlotStillFree
   };
 

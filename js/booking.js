@@ -5,14 +5,15 @@
  */
 (function (root) {
   "use strict";
-  var B = root.Bella, S = B.scheduler, ui = B.ui, repo = B.bookingRepository, cfg = B.config;
+  var B = root.Bella, S = B.scheduler, ui = B.ui, cfg = B.config;
+  function repo() { return B.repo; }
   var $ = function (id) { return document.getElementById(id); };
 
   var dlg = $("agenda");
   var state;
 
   function reset(ids) {
-    var now = new Date();
+    var now = B.now();
     state = {
       step: 1,
       ids: (ids || []).slice(),
@@ -20,9 +21,8 @@
       time: null,
       name: "",
       phone: "",
-      charge: null,
-      paid: false,
-      paying: false,
+      accepted: false,
+      busy: false,
       month: new Date(now.getFullYear(), now.getMonth(), 1),
       result: null
     };
@@ -31,8 +31,8 @@
   }
 
   function summary() { return S.summarize(cfg.services, state.ids, cfg.agenda.depositPercent); }
-  function bookings() { return repo.list(); }
-  function slotsFor(date) { return S.getAvailableSlots(date, summary().totalDuration, cfg.agenda, bookings(), new Date()); }
+  function bookings() { return repo().list(); }
+  function slotsFor(date) { return S.getAvailableSlots(date, summary().totalDuration, cfg.agenda, bookings(), B.now()); }
 
   /** Desfaz data/horário se deixaram de servir (ex.: mudou a duração). */
   function revalidateSelection() {
@@ -69,7 +69,7 @@
 
   /* ============================================================ PASSO 2 */
   function monthLimits() {
-    var now = new Date();
+    var now = B.now();
     var last = S.addDays(now, cfg.agenda.bookingWindowDays);
     return { min: new Date(now.getFullYear(), now.getMonth(), 1), max: new Date(last.getFullYear(), last.getMonth(), 1) };
   }
@@ -77,7 +77,7 @@
   var STATUS_TXT = { available: "disponível", full: "lotado", closed: "sem atendimento", blocked: "bloqueado", past: "data passada", beyond: "fora do período de agendamento" };
 
   function renderCalendar() {
-    var m = state.month, lim = monthLimits(), now = new Date();
+    var m = state.month, lim = monthLimits(), now = B.now();
     var dur = summary().totalDuration, list = bookings();
     $("dur-label").textContent = ui.duration(dur);
     $("cal-title").textContent = ui.MONTHS[m.getMonth()].replace(/^./, function (c) { return c.toUpperCase(); }) + " " + m.getFullYear();
@@ -127,7 +127,7 @@
       "</strong> para os procedimentos escolhidos, mais " + cfg.agenda.bufferMin + " min de preparo entre atendimentos.";
     var groups = {};
     slots.forEach(function (s) { (groups[s.period] = groups[s.period] || []).push(s); });
-    var html = cfg.agenda.periods.map(function (p) {
+    var html = S.periodsFor(state.date, cfg.agenda).map(function (p) {
       var g = groups[p.label] || [];
       return '<div class="slot-group"><h4>' + ui.esc(p.label) + ' <small>' + p.start + '–' + p.end + '</small></h4>' +
         (g.length ? '<div class="slots">' + g.map(function (s) {
@@ -206,50 +206,51 @@
   }
 
   function renderConfirm() {
-    var d = draft();
+    var d = draft(), pol = cfg.policy || {};
     $("summary").innerHTML = summaryRows(d);
+    $("deposit-box").hidden = !(d.deposit > 0);
     $("deposit-value").innerHTML = ui.money(d.deposit) + ' <small>de ' + ui.money(d.total) + '</small>';
-    $("pix-box").hidden = !state.charge;
-    if (state.charge) $("pix-code").textContent = state.charge.pixCopyPaste;
-    var pay = $("pay-btn");
-    pay.disabled = state.paid || state.paying;
-    pay.textContent = state.paid ? "Sinal simulado" : state.paying ? "Processando…" : "Simular pagamento do sinal";
-    $("pay-status").textContent = state.paid ? "Pagamento simulado com sucesso. Nenhuma cobrança foi feita." : state.paying ? "Gerando cobrança de demonstração…" : "Etapa ilustrativa: nenhum valor será cobrado.";
-    $("pay-status").classList.toggle("ok", state.paid);
+    $("pix-code").textContent = (cfg.payment && cfg.payment.pixKeyDisplay) || "Combine pelo WhatsApp";
+    $("policy-box").hidden = !pol.text;
+    $("policy-text").textContent = pol.text || "";
+    $("policy-accept").checked = state.accepted;
     $("confirm-error").hidden = true;
   }
 
-  $("pay-btn").addEventListener("click", function () {
-    if (state.paid || state.paying) return;
-    state.paying = true; renderConfirm();
-    var d = draft();
-    B.payment.createCharge({ amount: d.deposit, reference: d.date.replace(/-/g, "") + d.start.replace(":", ""), description: "Sinal — " + d.services.join(" + ") })
-      .then(function (charge) { state.charge = charge; renderConfirm(); return B.payment.confirm(charge.id); })
-      .then(function () { state.paying = false; state.paid = true; renderConfirm(); renderFoot(); });
-  });
+  $("policy-accept").addEventListener("change", function () { state.accepted = this.checked; renderFoot(); });
 
   $("copy-pix").addEventListener("click", function () {
-    ui.copy($("pix-code").textContent).then(function () { ui.toast("Texto copiado (ilustrativo)."); });
+    ui.copy($("pix-code").textContent).then(function () { ui.toast("Chave Pix copiada."); });
   });
 
   function confirmBooking() {
     var d = draft();
-    try {
-      var b = repo.create({
-        date: d.date, start: d.start, durationMin: d.duration,
-        serviceIds: state.ids.slice(), serviceNames: d.services,
-        totalPrice: d.total, deposit: d.deposit,
-        client: { name: d.name, phone: d.phone },
-        payment: { status: "simulated", provider: B.payment.name, chargeId: state.charge && state.charge.id }
-      });
+    if (state.busy) return;
+    state.busy = true; renderFoot();
+    repo().create({
+      date: d.date, start: d.start, durationMin: d.duration,
+      serviceIds: state.ids.slice(), serviceNames: d.services,
+      totalPrice: d.total, deposit: d.deposit, status: "pending",
+      client: { name: d.name, phone: d.phone },
+      acceptPolicy: state.accepted,
+      payment: { status: "awaiting", method: "pix-manual" }
+    }).then(function (b) {
+      state.busy = false;
       state.result = b;
       go(6);
-    } catch (err) {
-      if (err.code !== "SLOT_TAKEN") throw err;
-      state.time = null;
-      go(3);
-      ui.toast(err.message);
-    }
+    }, function (err) {
+      state.busy = false;
+      if (err.code === "SLOT_TAKEN") {
+        state.time = null;
+        go(3);
+        ui.toast(err.message);
+        return;
+      }
+      var box = $("confirm-error");
+      box.textContent = err.message || "Não foi possível concluir. Tente novamente.";
+      box.hidden = false;
+      renderFoot();
+    });
   }
 
   /* ============================================================ FINAL */
@@ -257,12 +258,13 @@
     var b = state.result, d = draft();
     $("done-code").textContent = b.code;
     $("done-summary").innerHTML = summaryRows(d);
-    var msg = "Olá! Fiz um agendamento pelo site (demonstração).\n" +
+    $("done-status").textContent = d.deposit > 0 ? "aguardando confirmação do sinal" : "aguardando confirmação da profissional";
+    var msg = "Olá! Acabei de agendar pelo site" + (repo().mode === "local" ? " (demonstração)" : "") + ".\n" +
       "Protocolo: " + b.code + "\n" +
       "Nome: " + d.name + "\n" +
       "Procedimentos: " + d.services.join(" + ") + "\n" +
       "Data: " + ui.longDate(d.date) + ", das " + d.start + " às " + d.end + "\n" +
-      "Valor: " + ui.money(d.total) + " (sinal " + ui.money(d.deposit) + ")";
+      "Valor: " + ui.money(d.total) + (d.deposit > 0 ? " (sinal " + ui.money(d.deposit) + ")\nSegue o comprovante do sinal." : "");
     $("done-wa").href = ui.waLink(msg);
   }
 
@@ -277,7 +279,7 @@
       case 2: return !!state.date;
       case 3: return !!state.time;
       case 4: return true; // validação detalhada no clique, com mensagens nos campos
-      case 5: return state.paid;
+      case 5: return !state.busy && (!(cfg.policy && cfg.policy.text) || state.accepted);
       default: return false;
     }
   }
@@ -289,7 +291,7 @@
       : '<span>Nenhum procedimento selecionado</span>';
     $("btn-back").hidden = state.step === 1;
     var nx = $("btn-next");
-    nx.textContent = NEXT_LABEL[state.step] || "Continuar";
+    nx.textContent = state.busy ? "Reservando…" : (NEXT_LABEL[state.step] || "Continuar");
     nx.disabled = !canAdvance();
     nx.setAttribute("aria-disabled", String(!canAdvance()));
     $("sheet-foot").hidden = state.step === 6;
@@ -346,8 +348,8 @@
 
   // Reservas feitas em outra aba do mesmo navegador atualizam a disponibilidade
   root.addEventListener("storage", function (e) {
-    if (e.key !== repo.STORAGE_KEY || !dlg.open) return;
-    repo.load();
+    if (repo().mode !== "local" || e.key !== B.bookingRepository.STORAGE_KEY || !dlg.open) return;
+    B.bookingRepository.load();
     if (state.step === 2) renderCalendar();
     if (state.step === 3) { revalidateSelection(); renderSlots(); renderFoot(); }
   });
@@ -355,20 +357,24 @@
   /* ============================================================ API */
   B.booking = {
     open: function (ids) {
-      repo.load();
       reset(ids);
       ui.openDialog(dlg);
       go(1);
-    }
+      // atualiza a disponibilidade (no modo plataforma, busca no servidor)
+      repo().refresh().then(function () {
+        if (state.step === 2) renderCalendar();
+        if (state.step === 3) { revalidateSelection(); renderSlots(); renderFoot(); }
+      }, function () { ui.toast("Sem conexão: os horários podem estar desatualizados."); });
+    },
+    refresh: function () { return repo().refresh(); }
   };
 
   document.querySelectorAll("[data-open-agenda]").forEach(function (b) {
-    b.addEventListener("click", function () { B.booking.open([]); });
+    b.addEventListener("click", function () { B.ready.then(function () { B.booking.open([]); }); });
   });
 
-  // Atalho: site.html#agenda abre a agenda direto
-  if (location.hash === "#agenda") B.booking.open([]);
+  // Atalho: site.html#agenda abre a agenda direto (depois que os dados carregarem)
   root.addEventListener("hashchange", function () {
-    if (location.hash === "#agenda" && !dlg.open) B.booking.open([]);
+    if (location.hash === "#agenda" && !dlg.open) B.ready.then(function () { B.booking.open([]); });
   });
 })(window);

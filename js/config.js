@@ -12,6 +12,23 @@
 (function (root) {
   "use strict";
 
+  // Fotos ilustrativas com licença livre (Unsplash License — uso gratuito, sem atribuição obrigatória).
+  // Se alguma não carregar, o site usa automaticamente a ilustração local indicada em `fallback`.
+  var U = "https://images.unsplash.com/";
+  function photo(id, w) { return U + id + "?auto=format&fit=crop&w=" + (w || 900) + "&q=70"; }
+  var PHOTOS = {
+    hero: photo("photo-1519415387722-a1c3bbef716c", 900),
+    design: photo("photo-1674049406179-d7bf2c263e71"),
+    henna: photo("photo-1777521778743-d152c0404e32"),
+    lamination: photo("photo-1666858619985-701e36b3bc57"),
+    cilios: photo("photo-1772236617396-2f8460293c07"),
+    resCilios: photo("photo-1639629509821-c54cdd984227"),
+    resCilios2: photo("photo-1683719312734-e31de63957ab"),
+    resOlhar: photo("photo-1542833807-ad5af0977050"),
+    resEstudio: photo("photo-1589710751893-f9a6770ad71b"),
+    resSobrancelha: photo("photo-1674049406467-824ea37c7184")
+  };
+
   var config = {
     /** Identificador da profissional (útil para multi‑profissionais no futuro). */
     professionalId: "demo-bella",
@@ -21,7 +38,12 @@
       shortName: "Bella",
       tagline: "Olhar realçado com técnica, delicadeza e um cuidado que respeita a sua beleza natural.",
       logo: "assets/img/logo-marca.svg",
-      heroImage: "assets/img/hero.svg",
+      heroImage: PHOTOS.hero,
+      heroFallback: "assets/img/hero.svg",
+      wordmark: "Bella",
+      subtitle: "Brows & Lashes",
+      // cores da identidade visual (o painel permite alterar)
+      theme: { primary: "#b5786a", primaryDeep: "#9a5f52", soft: "#ecd6cf", accent: "#a8845a", bg: "#f7f0ea", ink: "#4a352c" },
       year: new Date().getFullYear()
     },
 
@@ -57,7 +79,8 @@
         description: "Mapeamento do rosto e remoção dos fios com pinça para um desenho limpo e harmônico.",
         durationMin: 40,
         price: 45,
-        image: "assets/img/servico-design.svg"
+        image: PHOTOS.design,
+        fallback: "assets/img/servico-design.svg"
       },
       {
         id: "design-henna",
@@ -65,7 +88,8 @@
         description: "Design personalizado com aplicação de henna para preencher falhas e definir o formato.",
         durationMin: 60,
         price: 65,
-        image: "assets/img/servico-henna.svg"
+        image: PHOTOS.henna,
+        fallback: "assets/img/servico-henna.svg"
       },
       {
         id: "brow-lamination",
@@ -73,7 +97,8 @@
         description: "Alinhamento dos fios para cima, com efeito de sobrancelhas mais volumosas e penteadas.",
         durationMin: 60,
         price: 120,
-        image: "assets/img/servico-lamination.svg"
+        image: PHOTOS.lamination,
+        fallback: "assets/img/servico-lamination.svg"
       },
       {
         id: "extensao-cilios",
@@ -81,7 +106,8 @@
         description: "Aplicação fio a fio para alongar e dar curvatura aos cílios, com acabamento natural.",
         durationMin: 120,
         price: 180,
-        image: "assets/img/servico-cilios.svg"
+        image: PHOTOS.cilios,
+        fallback: "assets/img/servico-cilios.svg"
       }
     ],
 
@@ -108,12 +134,27 @@
       blockedRanges: []
     },
 
+    /** Galeria de resultados — fotos ILUSTRATIVAS (não são trabalhos da profissional) */
+    gallery: [
+      { title: "Extensão de cílios", after_url: PHOTOS.resCilios, is_illustrative: true },
+      { title: "Design de sobrancelha", after_url: PHOTOS.resSobrancelha, is_illustrative: true },
+      { title: "Cílios alongados", after_url: PHOTOS.resCilios2, is_illustrative: true },
+      { title: "Olhar valorizado", after_url: PHOTOS.resOlhar, is_illustrative: true },
+      { title: "Ambiente de atendimento", after_url: PHOTOS.resEstudio, is_illustrative: true }
+    ],
+
     payment: {
-      provider: "demo",         // futuro: "pix" | "mercadopago" | "stripe" …
+      provider: "manual-pix",   // futuro: "mercadopago" | "asaas" | "stripe" … (confirmação via webhook)
       pixKeyDisplay: "chave-pix-demonstrativa"
+    },
+
+    policy: {
+      text: "Cancelamentos e remarcações com pelo menos 24 horas de antecedência têm o sinal devolvido ou transferido para a nova data. Com menos de 24 horas, o sinal pode ficar retido.",
+      deadlineHours: 24
     }
   };
 
   root.Bella = root.Bella || {};
   root.Bella.config = config;
+  root.Bella.PHOTOS = PHOTOS;
 })(typeof window !== "undefined" ? window : globalThis);
