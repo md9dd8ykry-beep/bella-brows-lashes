@@ -1,127 +1,104 @@
-# Bella Brows & Lashes — site demonstrativo com Agenda Inteligente
+# Bella Brows & Lashes — plataforma de agendamento para profissionais da beleza
 
-Site responsivo (prioridade para celular) de um estúdio **fictício** de sobrancelhas e extensão de cílios, com uma **agenda interativa que funciona de verdade dentro do protótipo**: calcula horários livres, soma procedimentos, bloqueia conflitos e registra as reservas feitas na demonstração.
+Projeto demonstrativo com **duas áreas**:
 
-> ⚠️ **Demonstração.** Não há reservas nem pagamentos reais. Endereço, WhatsApp, Instagram, clientes e imagens são fictícios/ilustrativos.
+- **Site público da profissional** (`index.html?p=<slug>`): apresentação, procedimentos e valores, resultados, localização, fale conosco e a **Agenda Inteligente**.
+- **Área da profissional** (`admin/?p=<slug>`): login personalizado com a marca dela e painel com visão geral, agenda (dia/semana/mês), clientes, pagamentos, pedidos de cancelamento/remarcação, procedimentos, horários e personalização do site.
 
----
+A mesma instalação atende **várias profissionais**, cada uma com login, identidade visual, site, agenda, clientes e pagamentos próprios. Uma não vê os dados da outra.
 
-## 1. Como abrir
+> ⚠️ **Demonstração:** Bella Brows & Lashes e Lumi Nail Studio são empresas fictícias. Endereços, telefones e clientes são fictícios; fotos são ilustrativas (banco de imagens com licença livre).
 
-**Jeito mais simples:** dê dois cliques em `index.html`. Funciona offline, sem instalar nada.
+## Links
 
-**Recomendado (igual ao site publicado):** rode um servidor local na pasta do projeto:
-
-```bash
-cd bella-brows-lashes
-python3 -m http.server 8000
-# abra http://localhost:8000 no navegador (ou no celular, pelo IP do computador na mesma rede)
-```
-
-## 2. Estrutura
-
-```
-bella-brows-lashes/
-├── index.html              # Página única: herói, menu, procedimentos, resultados, localização, contato, rodapé e agenda
-├── css/style.css           # Estilos (mobile-first, breakpoints 640px e 960px)
-├── js/
-│   ├── config.js           # ★ Tudo o que a profissional edita: marca, contatos, endereço, procedimentos, preços, durações, regras da agenda
-│   ├── scheduler.js        # Motor de disponibilidade (funções puras, sem tela) — reaproveitável no backend
-│   ├── storage.js          # Repositório de agendamentos (localStorage) + dados de demonstração
-│   ├── payment.js          # Provedor de pagamento de DEMONSTRAÇÃO (interface pronta para Pix/gateway)
-│   ├── ui.js               # Utilitários: moeda, duração, datas, máscara de telefone, diálogos, links do WhatsApp
-│   ├── site.js             # Preenche o site a partir da config (serviços, resultados, mapa, prévia do painel)
-│   └── booking.js          # Fluxo da Agenda Inteligente (5 passos + tela final)
-├── assets/
-│   ├── img/                # Logo e ilustrações SVG (substituíveis)
-│   └── fonts/              # Cardo e Montserrat (licença OFL, incluídas no projeto)
-├── tests/
-│   ├── scheduler.test.js   # Testes da lógica da agenda (Node.js)
-│   └── e2e_playwright.py   # Teste ponta a ponta no navegador (celular e desktop)
-└── tools/gen_images.py     # Script que gerou as ilustrações (opcional)
-```
-
-**Por que HTML, CSS e JavaScript puros?** Carregam rápido (sem frameworks nem bibliotecas externas; ilustrações vetoriais e fontes locais), abrem direto do arquivo, publicam de graça no GitHub Pages e são fáceis de manter. A lógica já está separada em camadas (config → regras → armazenamento → tela), então migrar para React/Vue ou para um backend no futuro não exige reescrever as regras.
-
-## 3. Agenda Inteligente — como funciona
-
-1. **Procedimentos** — escolha um ou mais; tempo total e valor total são somados na hora.
-2. **Data** — calendário mostra só os dias com horário livre **para a duração escolhida**. Domingos, datas bloqueadas, dias passados e dias lotados ficam desabilitados.
-3. **Horário** — calculado considerando:
-   - períodos de atendimento (manhã 07h–11h30, tarde 13h30–17h30) — um atendimento **nunca atravessa o intervalo** do almoço;
-   - duração total (ex.: 40 min reserva 40 min; 100 min reserva 100 min);
-   - intervalo de preparo de 10 min entre atendimentos (`bufferMin`);
-   - agendamentos já existentes, datas e faixas bloqueadas;
-   - antecedência mínima de 60 min para o mesmo dia.
-4. **Seus dados** — nome completo e WhatsApp (com máscara e validação).
-5. **Confirmação** — resumo com cliente, procedimentos, duração, data, horário, valor total e **sinal de 50%**. O pagamento do sinal é **simulado** (nenhuma cobrança).
-
-Ao confirmar, a reserva é **gravada e o horário some da agenda** imediatamente. Antes de gravar, o sistema relê os dados e confere de novo se o horário continua livre — se outra aba já reservou, a cliente volta ao passo 3 com aviso. Assim duas clientes não conseguem reservar o mesmo horário **neste navegador**.
-
-**Dados de demonstração:** na primeira visita são criados agendamentos fictícios relativos à data de hoje (um dia parcialmente ocupado, um dia lotado, um dia bloqueado e uma tarde bloqueada). No rodapé, *“Ver agenda da profissional (demonstração)”* mostra todas as reservas, permite cancelar (o horário volta a ficar livre) e restaurar a demonstração.
-
-### Limites honestos do protótipo
-
-- As reservas ficam no `localStorage` **do navegador de quem usa**. Outra pessoa, em outro celular, não vê essas reservas.
-- Não há autenticação, banco de dados nem controle de concorrência no servidor.
-- **Para uso comercial real** é necessário: backend + banco de dados, autenticação da profissional, revalidação da reserva no servidor dentro de uma transação (ou restrição de unicidade), confirmação de pagamento via webhook do provedor, e LGPD (política de privacidade/consentimento para dados das clientes).
-
-## 4. Personalizar para uma profissional
-
-Quase tudo está em **`js/config.js`**:
-
-| O que mudar | Onde |
+| | |
 |---|---|
-| Nome, frase de apresentação, imagem principal | `brand` |
-| WhatsApp (só dígitos, com 55 + DDD), mensagem padrão, Instagram | `contact` |
-| Endereço, horário exibido, link e mapa incorporado do Google Maps | `location` |
-| Procedimentos: nome, descrição, **duração (min)**, **preço**, foto | `services` |
-| Dias de atendimento, períodos, intervalo entre atendimentos, antecedência, janela, % do sinal | `agenda` |
-| Datas fechadas (feriados, férias) e faixas bloqueadas | `agenda.blockedDates` / `agenda.blockedRanges` |
+| Site público (Bella) | https://md9dd8ykry-beep.github.io/bella-brows-lashes/ |
+| Site público (Lumi) | https://md9dd8ykry-beep.github.io/bella-brows-lashes/?p=lumi-nails |
+| Painel (Bella) | https://md9dd8ykry-beep.github.io/bella-brows-lashes/admin/?p=bella |
+| Painel (Lumi) | https://md9dd8ykry-beep.github.io/bella-brows-lashes/admin/?p=lumi-nails |
+| Versão estável anterior (só site + agenda local) | branch `estavel-v1-site-publico` |
 
-Mapa real: no Google Maps, abra o endereço → **Compartilhar → Incorporar um mapa**, copie só a URL do `src` e cole em `location.mapsEmbedUrl`. Em `location.mapsUrl` coloque o link de compartilhamento do local.
+## Dois modos de funcionamento
 
-### Trocar imagens por fotos reais
+| | Demonstração local | Plataforma (Supabase) |
+|---|---|---|
+| Quando | `js/platform.config.js` vazio | Project URL + chave pública preenchidas |
+| Site público | Funciona; reservas só no navegador | Dados do banco; reservas reais e compartilhadas |
+| Painel | Mostra como conectar (não simula login) | Login real, recuperação de senha, dados por conta |
+| Concorrência | Só dentro do mesmo navegador | Garantida no banco (restrição de exclusão) |
 
-- Coloque as fotos em `assets/img/` (de preferência **.webp** ou **.jpg** com até ~1600 px de largura e < 250 KB).
-- Procedimentos: altere o campo `image` de cada serviço em `config.js`. Proporção ideal **4:3**.
-- Resultados (antes/depois): edite a lista `RESULTS` em `js/site.js`. Fotos **quadradas (1:1)**, com mesmo enquadramento e luz no antes e no depois. Depois de trocar, remova o aviso “Imagens ilustrativas…” em `index.html` e o selo “Ilustração” em `js/site.js`.
-- Use apenas fotos de trabalhos próprios e com **autorização das clientes**.
-- Logo: substitua `assets/img/logo-marca.svg` (símbolo) e ajuste o texto “Bella / Brows & Lashes” no `index.html`. Também há `assets/img/logo.svg` (versão completa, com o nome em curvas).
+Para ligar o modo plataforma, siga **[docs/CONFIGURAR-SUPABASE.md](docs/CONFIGURAR-SUPABASE.md)**.
 
-## 5. Publicar no GitHub Pages (grátis)
+## Estrutura
 
-1. Crie uma conta em <https://github.com> e clique em **New repository** (ex.: `bella-brows-lashes`), público.
-2. Na página do repositório, **Add file → Upload files** e arraste **o conteúdo** da pasta `bella-brows-lashes` (o `index.html` deve ficar na raiz do repositório). Clique em **Commit changes**.
-   - Pelo terminal: `git init && git add . && git commit -m "Site Bella" && git branch -M main && git remote add origin https://github.com/SEU-USUARIO/bella-brows-lashes.git && git push -u origin main`
-3. Vá em **Settings → Pages**. Em *Build and deployment*, escolha **Deploy from a branch**, branch **main**, pasta **/ (root)** e salve.
-4. Em 1–2 minutos o site estará em `https://SEU-USUARIO.github.io/bella-brows-lashes/`.
-5. Domínio próprio (opcional): em **Settings → Pages → Custom domain**, informe o domínio e crie no seu provedor um registro **CNAME** apontando para `SEU-USUARIO.github.io`.
-
-Todos os caminhos do projeto são relativos, então ele funciona tanto na raiz de um domínio quanto em uma subpasta do GitHub Pages. Atalho útil para divulgação: `…/index.html#agenda` abre o site já com a agenda aberta.
-
-## 6. Testes
-
-```bash
-node tests/scheduler.test.js          # 11 testes da lógica de horários (sem instalar nada)
+```
+index.html                 site público (telas independentes + agenda)
+css/style.css
+js/
+  platform.config.js       ★ URL e chave pública do Supabase
+  config.js                conteúdo do modo demonstração local
+  core/api.js              cliente REST do Supabase (Auth, RPC, Storage) sem bibliotecas
+  data.js                  escolhe a fonte de dados (plataforma ou local) e aplica a identidade visual
+  scheduler.js             cálculo de horários livres (funções puras, testadas)
+  storage.js               reservas no navegador (modo local)
+  site.js                  telas, procedimentos, galeria, cancelar/remarcar
+  booking.js               Agenda Inteligente (5 passos)
+  ui.js, payment.js
+admin/                     área da profissional (index.html, admin.css, admin.js)
+supabase/
+  migrations/0001_plataforma.sql   tabelas, RLS, funções públicas e do painel, Storage
+  seed/0002_demo.sql               contas de demonstração (bella, lumi-nails)
+docs/
+  CONFIGURAR-SUPABASE.md   passo a passo de configuração
+  ARQUITETURA-E-CUSTOS.md  segurança, multi-profissional, pagamentos, custos
+tests/                     testes da lógica, do banco e ponta a ponta
+assets/                    imagens, logos e fontes (Cardo e Montserrat, licença OFL)
 ```
 
-Cobrem: soma de procedimentos e sinal; dias fechados/bloqueados/passados; primeiro e último horário de cada período; atendimentos que não atravessam o almoço; buffer entre atendimentos; cancelamento liberando horário; faixas bloqueadas; antecedência mínima; dia lotado; checagem final contra dupla reserva; e uma varredura com 200 reservas aleatórias garantindo que nenhuma se sobrepõe.
+## O que está funcionando
 
-Teste no navegador (opcional, requer Python + Playwright): `python3 tests/e2e_playwright.py` com o servidor local ligado. Ele percorre o fluxo completo no tamanho de um celular (390×844), tenta reservar o mesmo horário em duas abas e confere que a segunda é bloqueada.
+**Site público**
+- Início com logo, apresentação e 5 botões; cada botão abre **somente** a sua tela (com "Início" para voltar e suporte ao botão voltar do celular).
+- Agenda Inteligente: vários procedimentos com soma de tempo e valor; calendário só com dias que têm horário livre para a duração escolhida; horários que respeitam expediente, pausas, intervalo entre atendimentos, bloqueios, férias, datas especiais e antecedência.
+- Política de cancelamento exibida e aceita antes de confirmar; sinal informado com a chave Pix da profissional.
+- Pedido de cancelamento ou remarcação pela cliente (protocolo + WhatsApp).
 
-## 7. Próximo passo: painel administrativo
+**Painel**
+- Login com logo, nome e cores da profissional; e-mail **ou** telefone; recuperação de senha por e-mail.
+- Visão geral com cards (hoje, semana, clientes do mês, aguardando confirmação, sinais recebidos, recebido no mês, pendências, pedidos) e próximos atendimentos.
+- Agenda dia/semana/mês com horários livres, bloqueios e filtros por situação; detalhes completos de cada atendimento; confirmar, concluir, falta, cancelar (motivo obrigatório), remarcar com sugestão de horários livres, reativar.
+- Clientes com busca por nome/telefone, histórico, procedimentos realizados, valores pagos, próximos horários e anotações.
+- Pagamentos com filtros por data, forma e situação; recebidos, sinais, Pix, cartão, pendentes; registro **manual** e estorno.
+- Procedimentos: criar, editar, ocultar, excluir, com foto (envio para o Storage ou link).
+- Horários: dias e períodos (almoço/pausas), intervalo, antecedência, janela, % do sinal, política de cancelamento, datas especiais, folgas, férias, feriados e bloqueios.
+- Personalização: nome, logo, foto principal, cores (com paletas prontas), descrição, WhatsApp, Instagram, endereço, mapa, chave Pix e galeria de resultados.
+- Histórico de alterações e pedidos das clientes.
 
-O código foi organizado para receber um painel com login individual por profissional:
+## O que é simulado ou depende de integração externa
 
-- `config.js` → vira `GET /api/profissionais/:id/config` (procedimentos, preços, durações, horários, fotos, endereço, contatos).
-- `storage.js` → trocar por um `ApiBookingRepository` com os mesmos métodos (`list`, `create`, `cancel`), falando com `POST/GET/PATCH /api/agendamentos`.
-- `scheduler.js` → roda **também no servidor** (Node.js) para validar cada reserva antes de gravar.
-- `payment.js` → provedor real (Pix via Mercado Pago, Asaas, Efí, PagBank etc.) mantendo `createCharge` e `confirm`.
+- **Pix/cartão automáticos:** não integrados. O sinal é confirmado manualmente pela profissional. A estrutura (`payments.confirmation`, `provider`, `provider_ref`) está pronta para um webhook de gateway.
+- **E-mails de recuperação:** usam o e-mail padrão do Supabase (limite de 2/hora, só para a equipe do projeto). Em produção, configurar SMTP próprio.
+- **Cadastro self-service de profissionais, aprovação e planos pagos:** tabelas prontas (`plans`, `signup_requests`, `platform_admins`, `tenants.status`); telas e cobrança ainda não construídas.
+- **Fotos:** ilustrativas, hospedadas no Unsplash (licença livre). Se alguma não carregar, o site usa uma imagem local. Para uso real, substitua pelas fotos da profissional no painel.
+- **Antes e depois:** a galeria aceita pares antes/depois (comparador deslizante); os exemplos de demonstração usam só fotos únicas, porque não há pares reais com licença livre.
 
-Sugestão de tabelas: `profissionais`, `procedimentos`, `regras_agenda` (dias/períodos), `bloqueios` (datas/faixas), `clientes`, `agendamentos` (data, início, fim, status, procedimentos), `pagamentos`. Opções práticas de backend: **Supabase** (Postgres + login + regras de acesso) ou **Firebase**; ou Node.js/Express com PostgreSQL. Telas do painel: login, agenda diária/semanal/mensal, lista de clientes, cancelar/remarcar, editar procedimentos e horários, bloquear datas, trocar fotos/logo/contatos.
+## Testes
 
-## 8. Créditos
+```bash
+node tests/scheduler.test.js            # 11 testes da lógica de horários
+python3 tests/db/test_db.py             # 68 testes de segurança, isolamento, regras e concorrência no banco
+python3 tests/e2e_platform.py           # 45 verificações no navegador (celular e computador)
+python3 tests/e2e_playwright.py         # fluxo do modo demonstração local
+```
 
-- Fontes **Cardo** e **Montserrat** — SIL Open Font License (arquivos em `assets/fonts/`).
-- Logo e ilustrações criadas para este projeto (vetores originais).
+Os testes de banco e ponta a ponta usam um PostgreSQL local preparado com `tests/db/00_supabase_local.sql` e o simulador da API em `tests/supabase_shim.py` (o mesmo código do site e do painel, contra um banco idêntico ao do Supabase).
+
+## Publicação
+
+- GitHub Pages: **Settings → Pages → Deploy from a branch → main / (root)**. Cada envio para a `main` publica em ~1 minuto.
+- Desenvolvimento em branches; a versão estável anterior está preservada em `estavel-v1-site-publico`.
+
+## Custos
+
+Resumo em [docs/ARQUITETURA-E-CUSTOS.md](docs/ARQUITETURA-E-CUSTOS.md): demonstração **R$ 0/mês** (GitHub Pages + Supabase Free); produção a partir de **US$ 25/mês** (Supabase Pro, sem pausa e com backup) + domínio opcional (R$ 40/ano no Registro.br), atendendo várias profissionais no mesmo projeto.

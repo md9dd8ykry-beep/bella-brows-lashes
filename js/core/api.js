@@ -127,9 +127,12 @@
     /** Chama uma função do banco. Todas recebem um único objeto `p`. */
     function rpc(fn, params) {
       return validToken().catch(function () { return null; }).then(function (tk) {
+        // Chaves novas (sb_publishable_…) não são JWT: vão só no cabeçalho apikey.
+        // Chaves antigas (anon, JWT) também podem ir no Authorization.
+        var bearer = tk || (/^sb_/.test(key) ? null : key);
         return request("/rest/v1/rpc/" + fn, {
           method: "POST",
-          headers: { Authorization: "Bearer " + (tk || key) },
+          headers: bearer ? { Authorization: "Bearer " + bearer } : {},
           body: JSON.stringify({ p: params || {} })
         });
       });

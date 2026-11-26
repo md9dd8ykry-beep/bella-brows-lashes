@@ -13,6 +13,9 @@ import jwt
 
 SECRET = "segredo-somente-para-testes-locais-0123456789"
 ANON_KEY = jwt.encode({"role": "anon", "iss": "shim"}, SECRET, algorithm="HS256")
+# formato novo de chave pública do Supabase (não é JWT; vai só no cabeçalho apikey)
+PUB_KEY = "sb_publishable_teste_local_0123456789"
+KEYS = (ANON_KEY, PUB_KEY)
 DB = os.environ.get("PGDATABASE", "plat")
 STORE = "/tmp/shim_storage"
 MAIL = "/tmp/shim_mail.json"
@@ -66,10 +69,14 @@ class H(BaseHTTPRequestHandler):
         return self.rfile.read(n) if n else b""
 
     def claims(self):
-        if self.headers.get("apikey") != ANON_KEY:
+        if self.headers.get("apikey") not in KEYS:
             return None
         auth = self.headers.get("Authorization", "")
         tk = auth.replace("Bearer ", "")
+        if not tk:
+            return {"role": "anon"}
+        if tk == PUB_KEY:
+            return None  # chave nova não pode ir no Authorization
         try:
             return jwt.decode(tk, SECRET, algorithms=["HS256"], options={"verify_aud": False})
         except jwt.ExpiredSignatureError:
@@ -112,7 +119,7 @@ class H(BaseHTTPRequestHandler):
     def do_POST(self):
         u = urlparse(self.path)
         q = parse_qs(u.query)
-        if self.headers.get("apikey") != ANON_KEY:
+        if self.headers.get("apikey") not in KEYS:
             return self.send(401, {"message": "Invalid API key"})
         if u.path == "/auth/v1/token":
             d = json.loads(self.body() or b"{}")
