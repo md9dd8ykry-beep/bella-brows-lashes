@@ -426,3 +426,58 @@ dialog.sheet[open] .sheet-inner { animation: rise .32s cubic-bezier(.2, .8, .2, 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+
+/* ======================================================== PLATAFORMA v2 */
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* carregamento */
+.loading { position: fixed; inset: auto 0 0 0; z-index: 50; display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 10px; font-size: 13px; color: var(--ink-soft); background: rgba(251, 247, 243, .92); }
+.loading span { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--rose-soft); border-top-color: var(--rose); animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.load-error { margin: 16px; padding: 16px; border-radius: 16px; background: #f6dcd7; color: var(--err); text-align: center; display: grid; gap: 8px; justify-items: center; }
+
+/* telas independentes */
+.view.enter { animation: viewIn .28s ease-out; }
+@keyframes viewIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.screen { min-height: calc(100vh - 220px); min-height: calc(100dvh - 220px); padding-top: 8px; }
+.screen-bar {
+  position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin: 0 -18px 18px; padding: 10px 18px; padding-top: max(10px, env(safe-area-inset-top));
+  background: rgba(247, 240, 234, .94); backdrop-filter: blur(8px); border-bottom: 1px solid var(--sand);
+}
+.back-link { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; padding: 0 14px 0 8px; border-radius: 999px;
+  text-decoration: none; font-size: 14px; font-weight: 600; color: var(--ink); background: var(--paper); box-shadow: var(--shadow); }
+.back-link svg { width: 20px; height: 20px; }
+.screen-brand { font-family: var(--serif); font-size: 17px; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.view-home { padding-bottom: 12px; }
+
+.hero-photo .photo-tag { position: absolute; left: 10px; bottom: 14px; z-index: 2; font-size: 11px; padding: 3px 8px; border-radius: 999px;
+  background: rgba(251, 247, 243, .85); color: var(--ink-soft); }
+
+.compare.single img { width: 100%; height: 100%; object-fit: cover; }
+
+/* fale conosco */
+.manage-card { margin: 34px auto 0; max-width: 460px; padding: 20px; border-radius: var(--radius); background: var(--white); box-shadow: var(--shadow); display: grid; gap: 10px; justify-items: center; }
+.manage-card h3 { font-size: 22px; }
+.manage-card p { font-size: 14px; color: var(--ink-soft); }
+
+.admin-link { display: inline-block; margin-top: 6px; font-size: 12px; color: var(--ink-soft); opacity: .75; text-decoration: none; padding: 10px; }
+.admin-link:hover { opacity: 1; text-decoration: underline; }
+
+/* política e confirmação */
+.policy { margin-top: 16px; padding: 16px; border-radius: 16px; background: var(--white); border: 1px solid var(--sand-2); display: grid; gap: 8px; font-size: 14px; }
+.policy p { color: var(--ink-soft); }
+.check { display: flex; gap: 10px; align-items: flex-start; font-weight: 600; cursor: pointer; }
+.check input { width: 22px; height: 22px; accent-color: var(--rose); flex: none; margin-top: 1px; }
+.policy-mini { font-size: 12.5px; color: var(--ink-soft); margin: -4px 0 12px; }
+
+/* diálogo pequeno */
+@media (min-width: 640px) { .sheet-small .sheet-inner { height: auto; max-height: calc(100% - 40px); } }
+.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 4px; border-radius: 14px; background: var(--sand); margin-bottom: 16px; }
+.seg label { position: relative; }
+.seg input { position: absolute; opacity: 0; }
+.seg span { display: grid; place-items: center; min-height: 42px; border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer; }
+.seg input:checked + span { background: var(--white); color: var(--rose-deep); box-shadow: var(--shadow); }
+.seg input:focus-visible + span { outline: 2px solid var(--rose); }
+.mg-done { text-align: center; display: grid; gap: 14px; }

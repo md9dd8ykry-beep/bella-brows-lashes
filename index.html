@@ -27,27 +27,32 @@
     <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.6 5.4L19 10l-5.4 1.6L12 17l-1.6-5.4L5 10l5.4-1.6z" fill="currentColor"/></symbol>
   </svg>
 
-  <div class="demo-strip" role="note">
+  <div class="demo-strip" role="note" id="mode-strip">
     Site demonstrativo · nenhuma reserva ou pagamento é real
   </div>
+  <div class="loading" id="loading" aria-live="polite"><span></span>Carregando…</div>
+  <div class="load-error" id="load-error" hidden></div>
 
   <!-- ============================== 1. LOGO E APRESENTAÇÃO ============================== -->
+  <div class="view view-home" data-view="inicio">
   <header class="hero" id="inicio">
     <div class="hero-photo">
-      <img data-bind-src="brand.heroImage" src="assets/img/hero.svg" alt="Ilustração de olho com sobrancelha desenhada e cílios alongados" width="440" height="860" fetchpriority="high">
+      <img id="hero-img" alt="Foto ilustrativa de olhar com sobrancelhas e cílios" width="440" height="860" fetchpriority="high">
+      <span class="photo-tag">Foto ilustrativa</span>
     </div>
     <div class="hero-brand">
-      <img class="hero-mark" src="assets/img/logo-marca.svg" alt="" width="104" height="108">
+      <img class="hero-mark" id="brand-logo" alt="" width="104" height="108">
       <h1 class="wordmark">
-        <span class="wm-name">Bella</span>
-        <span class="wm-sub">Brows &amp; Lashes</span>
+        <span class="wm-name" data-bind="brand.wordmark">Bella</span>
+        <span class="wm-sub" data-bind="brand.subtitle">Brows &amp; Lashes</span>
+        <span class="visually-hidden" data-bind="brand.name"></span>
       </h1>
       <div class="divider" aria-hidden="true"><svg><use href="#i-spark"/></svg></div>
       <p class="tagline" data-bind="brand.tagline"></p>
       <div class="hero-social">
         <a class="icon-btn" data-link="instagram" href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram"><svg><use href="#i-ig"/></svg></a>
         <a class="icon-btn" data-link="whatsapp" href="https://wa.me/" target="_blank" rel="noopener" aria-label="WhatsApp"><svg><use href="#i-wa"/></svg></a>
-        <a class="icon-btn" href="#localizacao" aria-label="Localização"><svg><use href="#i-pin"/></svg></a>
+        <a class="icon-btn" href="#localizacao" data-go="localizacao" aria-label="Localização"><svg><use href="#i-pin"/></svg></a>
       </div>
     </div>
     <div class="hero-cta">
@@ -63,47 +68,56 @@
   <nav class="menu" aria-label="Seções do site">
     <button class="menu-card" type="button" data-open-agenda>
       <span class="menu-ico"><svg><use href="#i-cal"/></svg></span>
-      <span class="menu-txt"><strong>Agenda inteligente</strong><small>Reserve em poucos toques, com horários calculados para os seus procedimentos.</small></span>
+      <span class="menu-txt"><strong>Agenda Inteligente</strong><small>Reserve em poucos toques, com horários calculados para os seus procedimentos.</small></span>
       <span class="menu-go"><svg><use href="#i-chev"/></svg></span>
     </button>
-    <a class="menu-card" href="#procedimentos">
+    <a class="menu-card" href="#procedimentos" data-go="procedimentos">
       <span class="menu-ico"><svg><use href="#i-list"/></svg></span>
-      <span class="menu-txt"><strong>Procedimentos</strong><small>Sobrancelhas e cílios, com duração e valores.</small></span>
+      <span class="menu-txt"><strong>Procedimentos e Valores</strong><small>Conheça cada técnica, a duração e o valor.</small></span>
       <span class="menu-go"><svg><use href="#i-chev"/></svg></span>
     </a>
-    <a class="menu-card" href="#resultados">
+    <a class="menu-card" href="#resultados" data-go="resultados">
       <span class="menu-ico"><svg><use href="#i-gallery"/></svg></span>
-      <span class="menu-txt"><strong>Resultados</strong><small>Compare o antes e o depois de cada técnica.</small></span>
+      <span class="menu-txt"><strong>Resultados</strong><small>Inspire-se na galeria de fotos.</small></span>
       <span class="menu-go"><svg><use href="#i-chev"/></svg></span>
     </a>
-    <a class="menu-card" href="#localizacao">
+    <a class="menu-card" href="#localizacao" data-go="localizacao">
       <span class="menu-ico"><svg><use href="#i-pin"/></svg></span>
       <span class="menu-txt"><strong>Localização</strong><small>Um espaço acolhedor, pensado para você.</small></span>
       <span class="menu-go"><svg><use href="#i-chev"/></svg></span>
     </a>
-    <a class="menu-card" href="#contato">
+    <a class="menu-card" href="#contato" data-go="contato">
       <span class="menu-ico"><svg><use href="#i-wa"/></svg></span>
-      <span class="menu-txt"><strong>Fale conosco</strong><small>Tire suas dúvidas pelo WhatsApp.</small></span>
+      <span class="menu-txt"><strong>Fale Conosco</strong><small>Tire dúvidas, cancele ou remarque pelo WhatsApp.</small></span>
       <span class="menu-go"><svg><use href="#i-chev"/></svg></span>
     </a>
   </nav>
+  </div>
 
   <main>
     <!-- ============================== 2. PROCEDIMENTOS ============================== -->
-    <section class="section" id="procedimentos" aria-labelledby="t-proc">
+    <section class="view screen section" data-view="procedimentos" aria-labelledby="t-proc" hidden>
+      <div class="screen-bar">
+        <a class="back-link" href="#inicio" data-go="inicio"><svg aria-hidden="true"><use href="#i-back"/></svg>Início</a>
+        <span class="screen-brand" data-bind="brand.name"></span>
+      </div>
       <div class="section-head">
-        <h2 id="t-proc">Procedimentos</h2>
+        <h2 id="t-proc">Procedimentos e Valores</h2>
         <p>Selecione um procedimento para abrir a agenda já com ele escolhido. Você pode somar outros na sequência.</p>
       </div>
       <div class="services" id="services-list"></div>
-      <p class="fine">Valores e durações demonstrativos.</p>
+      <p class="fine" id="services-note">Valores e durações demonstrativos.</p>
     </section>
 
     <!-- ============================== 3. RESULTADOS ============================== -->
-    <section class="section section-tint" id="resultados" aria-labelledby="t-res">
+    <section class="view screen section" data-view="resultados" aria-labelledby="t-res" hidden>
+      <div class="screen-bar">
+        <a class="back-link" href="#inicio" data-go="inicio"><svg aria-hidden="true"><use href="#i-back"/></svg>Início</a>
+        <span class="screen-brand" data-bind="brand.name"></span>
+      </div>
       <div class="section-head">
         <h2 id="t-res">Nossos Resultados</h2>
-        <p>Arraste a linha central para comparar o antes e o depois.</p>
+        <p id="results-help">Deslize para ver mais fotos.</p>
       </div>
       <div class="results-wrap">
         <div class="results" id="results-list" tabindex="0" aria-label="Galeria de antes e depois"></div>
@@ -113,11 +127,15 @@
           <button class="round-btn" type="button" data-results="next" aria-label="Próximo resultado"><svg><use href="#i-chev"/></svg></button>
         </div>
       </div>
-      <p class="fine notice">Imagens ilustrativas criadas para esta demonstração — não são resultados reais de clientes. Substitua pelas fotos dos seus próprios trabalhos (veja o README).</p>
+      <p class="fine notice" id="results-notice">Fotos ilustrativas de banco de imagens com licença livre (Unsplash). Não são trabalhos nem clientes desta profissional.</p>
     </section>
 
     <!-- ============================== 4. LOCALIZAÇÃO ============================== -->
-    <section class="section" id="localizacao" aria-labelledby="t-loc">
+    <section class="view screen section" data-view="localizacao" aria-labelledby="t-loc" hidden>
+      <div class="screen-bar">
+        <a class="back-link" href="#inicio" data-go="inicio"><svg aria-hidden="true"><use href="#i-back"/></svg>Início</a>
+        <span class="screen-brand" data-bind="brand.name"></span>
+      </div>
       <div class="section-head">
         <h2 id="t-loc">Onde estamos</h2>
       </div>
@@ -127,7 +145,7 @@
           <span class="map-tag">Mapa ilustrativo</span>
         </div>
         <div class="address-card">
-          <span class="badge">Endereço fictício de demonstração</span>
+          <span class="badge" id="addr-demo">Endereço fictício de demonstração</span>
           <p class="addr"><strong data-bind="location.line1"></strong><br><span data-bind="location.line2"></span></p>
           <p class="hours"><svg aria-hidden="true"><use href="#i-clock"/></svg><span data-bind="location.hours"></span></p>
           <a class="btn-outline" data-link="maps" href="https://www.google.com/maps" target="_blank" rel="noopener">
@@ -138,13 +156,22 @@
     </section>
 
     <!-- ============================== 5. FALE CONOSCO ============================== -->
-    <section class="section contact" id="contato" aria-labelledby="t-con">
+    <section class="view screen section contact" data-view="contato" aria-labelledby="t-con" hidden>
+      <div class="screen-bar">
+        <a class="back-link" href="#inicio" data-go="inicio"><svg aria-hidden="true"><use href="#i-back"/></svg>Início</a>
+        <span class="screen-brand" data-bind="brand.name"></span>
+      </div>
       <h2 id="t-con">Ficou com alguma dúvida?</h2>
       <p>Fale direto com a gente pelo WhatsApp. Respondemos no horário de atendimento.</p>
       <a class="btn-primary btn-wa" data-link="whatsapp" href="https://wa.me/" target="_blank" rel="noopener">
         <svg aria-hidden="true"><use href="#i-wa"/></svg> Fale conosco
       </a>
-      <p class="fine">Número demonstrativo: <span data-bind="contact.whatsappDisplay"></span></p>
+      <p class="fine"><span id="wa-label">Número demonstrativo</span>: <span data-bind="contact.whatsappDisplay"></span></p>
+      <div class="manage-card">
+        <h3>Já tem um agendamento?</h3>
+        <p>Peça cancelamento ou remarcação informando o protocolo e o seu WhatsApp. A profissional analisa e responde.</p>
+        <button class="btn-outline" type="button" id="open-manage">Cancelar ou remarcar</button>
+      </div>
     </section>
   </main>
 
@@ -156,9 +183,10 @@
       <a data-link="instagram" href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram"><svg><use href="#i-ig"/></svg></a>
       <a data-link="whatsapp" href="https://wa.me/" target="_blank" rel="noopener" aria-label="WhatsApp"><svg><use href="#i-wa"/></svg></a>
     </div>
-    <p class="footer-name">Bella Brows &amp; Lashes</p>
-    <p class="footer-copy">© <span data-bind="brand.year"></span> Bella Brows &amp; Lashes. Todos os direitos reservados.</p>
-    <button class="link-btn" type="button" id="open-panel">Ver agenda da profissional (demonstração)</button>
+    <p class="footer-name" data-bind="brand.name">Bella Brows &amp; Lashes</p>
+    <p class="footer-copy">© <span data-bind="brand.year"></span> <span data-bind="brand.name"></span>. Todos os direitos reservados.</p>
+    <button class="link-btn" type="button" id="open-panel" hidden>Ver agenda da demonstração local</button>
+    <a class="admin-link" id="admin-link" href="admin/">Área da profissional</a>
   </footer>
 
   <!-- ============================== AGENDA INTELIGENTE ============================== -->
@@ -166,8 +194,8 @@
     <div class="sheet-inner">
       <header class="sheet-head">
         <div>
-          <p class="sheet-kicker">Demonstração interativa</p>
-          <h2 id="ag-title">Agenda inteligente</h2>
+          <p class="sheet-kicker" data-bind="brand.name"></p>
+          <h2 id="ag-title">Agenda Inteligente</h2>
         </div>
         <button class="round-btn" type="button" data-close aria-label="Fechar agenda"><svg><use href="#i-x"/></svg></button>
       </header>
@@ -218,7 +246,7 @@
         <!-- Passo 4 -->
         <section class="step" data-panel="4" aria-labelledby="s4" hidden>
           <h3 id="s4">Seus dados</h3>
-          <p class="step-help">Use dados fictícios: esta é uma demonstração e nada é enviado.</p>
+          <p class="step-help" id="data-help">Usamos seus dados apenas para confirmar o atendimento pelo WhatsApp.</p>
           <form id="client-form" novalidate>
             <label class="field">
               <span>Nome completo</span>
@@ -238,19 +266,23 @@
         <section class="step" data-panel="5" aria-labelledby="s5" hidden>
           <h3 id="s5">Confira e confirme</h3>
           <dl class="summary" id="summary"></dl>
-          <div class="deposit">
+          <div class="deposit" id="deposit-box">
             <div class="deposit-head">
               <strong>Sinal para garantir o horário</strong>
-              <span class="badge">Simulação</span>
+              <span class="badge">Pago após a reserva</span>
             </div>
             <p class="deposit-value" id="deposit-value"></p>
-            <div class="pix-box" id="pix-box" hidden>
-              <p>Pix copia e cola <em>(texto ilustrativo, não é um código válido)</em></p>
+            <div class="pix-box">
+              <p>Chave Pix da profissional</p>
               <code id="pix-code"></code>
-              <button class="btn-ghost" type="button" id="copy-pix">Copiar</button>
+              <button class="btn-ghost" type="button" id="copy-pix">Copiar chave</button>
             </div>
-            <button class="btn-outline wide" type="button" id="pay-btn">Simular pagamento do sinal</button>
-            <p class="pay-status" id="pay-status" aria-live="polite"></p>
+            <p class="pay-status">Depois de confirmar, envie o comprovante pelo WhatsApp. O horário fica reservado e o agendamento é confirmado quando a profissional conferir o sinal. Nenhum pagamento é feito por este site.</p>
+          </div>
+          <div class="policy" id="policy-box" hidden>
+            <strong>Política de cancelamento</strong>
+            <p id="policy-text"></p>
+            <label class="check"><input type="checkbox" id="policy-accept"> <span>Li e concordo com a política de cancelamento.</span></label>
           </div>
           <p class="form-error" id="confirm-error" role="alert" hidden></p>
         </section>
@@ -258,12 +290,12 @@
         <!-- Final -->
         <section class="step done" data-panel="6" aria-labelledby="s6" hidden>
           <div class="done-icon"><svg><use href="#i-check"/></svg></div>
-          <h3 id="s6">Agendamento confirmado!</h3>
-          <p class="step-help">Protocolo <strong id="done-code"></strong> · reserva de demonstração</p>
+          <h3 id="s6">Horário reservado!</h3>
+          <p class="step-help">Protocolo <strong id="done-code"></strong> · <span id="done-status">aguardando confirmação do sinal</span></p>
           <dl class="summary" id="done-summary"></dl>
-          <p class="fine">O horário já aparece como ocupado na agenda desta demonstração (neste navegador).</p>
+          <p class="fine" id="done-note">Guarde o protocolo: com ele e o seu WhatsApp você pode pedir cancelamento ou remarcação.</p>
           <div class="done-actions">
-            <a class="btn-primary btn-wa" id="done-wa" href="https://wa.me/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-wa"/></svg> Enviar resumo no WhatsApp</a>
+            <a class="btn-primary btn-wa" id="done-wa" href="https://wa.me/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-wa"/></svg> Enviar comprovante no WhatsApp</a>
             <button class="btn-outline" type="button" id="new-booking">Fazer outro agendamento</button>
             <button class="link-btn" type="button" data-close>Voltar ao site</button>
           </div>
@@ -285,8 +317,8 @@
     <div class="sheet-inner">
       <header class="sheet-head">
         <div>
-          <p class="sheet-kicker">Prévia do futuro painel</p>
-          <h2 id="pn-title">Agenda da profissional</h2>
+          <p class="sheet-kicker">Demonstração local</p>
+          <h2 id="pn-title">Reservas neste navegador</h2>
         </div>
         <button class="round-btn" type="button" data-close aria-label="Fechar"><svg><use href="#i-x"/></svg></button>
       </header>
@@ -298,13 +330,49 @@
     </div>
   </dialog>
 
+  <!-- ============================== CANCELAR / REMARCAR ============================== -->
+  <dialog class="sheet sheet-small" id="manage" aria-labelledby="mg-title">
+    <div class="sheet-inner">
+      <header class="sheet-head">
+        <div>
+          <p class="sheet-kicker" data-bind="brand.name"></p>
+          <h2 id="mg-title">Cancelar ou remarcar</h2>
+        </div>
+        <button class="round-btn" type="button" data-close aria-label="Fechar"><svg><use href="#i-x"/></svg></button>
+      </header>
+      <div class="sheet-body">
+        <form id="manage-form" novalidate>
+          <div class="seg" role="radiogroup" aria-label="Tipo de pedido">
+            <label><input type="radio" name="mg-type" value="reschedule" checked><span>Remarcar</span></label>
+            <label><input type="radio" name="mg-type" value="cancel"><span>Cancelar</span></label>
+          </div>
+          <label class="field"><span>Protocolo</span><input id="mg-code" type="text" autocomplete="off" placeholder="Ex.: K7M2QX" maxlength="12" required></label>
+          <label class="field"><span>WhatsApp usado no agendamento</span><input id="mg-phone" type="tel" inputmode="numeric" placeholder="(00) 00000-0000" required></label>
+          <label class="field" id="mg-pref-wrap"><span>Preferência de nova data/horário</span><input id="mg-pref" type="text" maxlength="200" placeholder="Ex.: sexta à tarde"></label>
+          <label class="field"><span>Motivo (opcional)</span><input id="mg-reason" type="text" maxlength="300"></label>
+          <p class="policy-mini" id="mg-policy"></p>
+          <p class="form-error" id="mg-error" role="alert" hidden></p>
+          <button class="btn-primary wide" type="submit" id="mg-submit">Enviar pedido</button>
+        </form>
+        <div class="mg-done" id="mg-done" hidden>
+          <div class="done-icon"><svg><use href="#i-check"/></svg></div>
+          <p id="mg-done-text"></p>
+          <a class="btn-outline wide" id="mg-wa" href="https://wa.me/" target="_blank" rel="noopener">Avisar pelo WhatsApp</a>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
   <noscript><p class="noscript">Ative o JavaScript para usar a agenda inteligente.</p></noscript>
 
+  <script src="js/platform.config.js"></script>
   <script src="js/config.js"></script>
   <script src="js/scheduler.js"></script>
   <script src="js/storage.js"></script>
+  <script src="js/core/api.js"></script>
+  <script src="js/data.js"></script>
   <script src="js/payment.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/site.js"></script>
